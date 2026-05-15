@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
-from app.database import create_user, verify_user
-from app.auth import create_session, destroy_session, require_user
+from database import create_user, verify_user
+from auth import create_session, destroy_session, require_user
 
 router = APIRouter(prefix="/auth", tags=["Авторизация"])
 
