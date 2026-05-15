@@ -15,6 +15,17 @@ from . import afisha as afisha_client  # не класс, а модуль с ф�
 from . import database as db
 from .auth import create_session, destroy_session, get_current_user, require_user
 
+from contextlib import asynccontextmanager
+from app.database import init_pool, close_pool
+
+@asynccontextmanager
+async def lifespan(app):
+    await init_pool()
+    yield
+    await close_pool()
+
+app = FastAPI(..., lifespan=lifespan)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
