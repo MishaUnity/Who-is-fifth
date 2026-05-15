@@ -1,8 +1,7 @@
-import base64
+import uuid
 import os
 import time
 import json
-import logging
 import requests
 from typing import Generator
 
@@ -32,11 +31,14 @@ class GigaChatClient:
                 headers={
                     "Authorization": f"Basic {self.auth_key}",
                     "Content-Type": "application/x-www-form-urlencoded",
+                    "RqUID": str(uuid.uuid4()),  # обязательный уникальный ID запроса
                 },
                 data={"scope": "GIGACHAT_API_PERS"},
                 timeout=30.0,
                 verify=False,
             )
+            print("Статус ответа:", response.status_code)  # добавьте
+            print("Тело ответа:", response.text)            # добавьте
             response.raise_for_status()
             data = response.json()
             self._access_token = data["access_token"]
@@ -64,10 +66,14 @@ class GigaChatClient:
 
         try:
             response = requests.post(
-                CHAT_URL,
-                json=payload,
-                headers={"Authorization": f"Bearer {token}"},
-                timeout=60.0,
+                OAUTH_URL,
+                headers={
+                    "Authorization": f"Basic {self.auth_key}",
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "RqUID": str(uuid.uuid4()),  # обязательный уникальный ID запроса
+                },
+                data={"scope": "GIGACHAT_API_PERS"},
+                timeout=30.0,
                 verify=False,
             )
             response.raise_for_status()
