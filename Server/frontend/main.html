@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<head style="padding: 0;">
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+
+    <meta charset="utf-8">
+    <title>Главная страница</title>
+</head>
+<body>
+    <!-- Верх -->
+    <div class="TopBar">
+        <div style="margin-left: 10px;" class="Container">
+            <div class="Container" style="margin: 20px; align-items: center;">
+                <img src="static/images/sirius-logo.svg" width="80px" style="margin-right: 20px;">
+                <img src="static/images/aisa-logo.svg" width="80px">
+            </div>
+            <div class="LineVertical" style="margin-right: 20px;"></div>
+            <p class="TitleText" style="align-self: center;">Сириус Афиша - Ассистент</p>
+        </div>
+    </div>
+
+    <div class="Panel" style="margin: 60px;">
+        <div>
+            <div>
+                <h2 class="TitleText">Добро пожаловать</h2>
+                <p class="chat-welcome__subtitle">
+                    Я — ассистент сервиса Афиша-СИРИУС.<br>
+                    Спросите меня о мероприятиях, событиях или о чём угодно
+                </p>
+            </div>
+        </div>
+
+        <div class="Container">
+            <div class="Container" style="width: 600px; border: solid 2px rgb(136, 208, 196); border-radius: 10px; padding: 10px;">
+                <textarea id="messageInput" placeholder="Напишите сообщение…" rows="1" maxlength="4000"></textarea>
+                <button id="sendBtn">Отправить</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="static/main.js"></script>
+    
+</body>
+</html>

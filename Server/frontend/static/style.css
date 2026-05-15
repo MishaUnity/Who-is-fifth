@@ -1,0 +1,91 @@
+body 
+{
+    background-color: rgb(246, 248, 250);
+    margin: 0;
+    padding: 0;
+
+    font-family: 'Rubik';
+}
+
+.LineVertical
+{
+    border-right: 1px solid rgb(196, 200, 206); 
+    height: 40px; 
+    align-self: center;
+}
+
+.TopBar
+{
+    background-color: white;
+    border-bottom: 1px rgb(196, 200, 206) solid;
+}
+
+.TitleText
+{
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}
+
+.Container
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.Panel
+{
+    background-color: white;
+    border: 1px rgb(196, 200, 206) solid;
+    border-radius: 15px;
+    padding-left: 20px;
+    padding-bottom: 20px;
+}
+
+.AccentPanel
+{
+    background-color: rgb(136, 208, 196);
+    padding: 10px;
+}
+
+.InputArea
+{
+    padding: 12px 16px 14px 16px;
+    background: white;
+    border-top: 1px solid #eef2f6;
+    flex-shrink: 0;
+}
+
+#messageInput 
+{
+    flex: 1;
+    border: none;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.45;
+    outline: none;
+    background: transparent;
+    font-family: 'Rubik', sans-serif;
+    color: #1e2a3a;
+    resize: none;
+    max-height: 100px;
+}
+
+#sendBtn 
+{
+    background: rgb(136, 208, 196);
+    border: none;
+    border-radius: 10px;
+    padding: 6px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: 'Rubik', sans-serif;
+    color: #0a2b2b;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#sendBtn:hover 
+{
+    background: rgb(116, 188, 176);
+}
