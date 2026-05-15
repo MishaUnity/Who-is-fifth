@@ -24,7 +24,7 @@ async def lifespan(app):
     yield
     await close_pool()
 
-app = FastAPI(lifespan=lifespan, ...)
+app = FastAPI(..., lifespan=lifespan)
 
 logging.basicConfig(
     level=logging.INFO,
