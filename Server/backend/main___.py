@@ -15,13 +15,8 @@ from .gigachat import GigaChatClient
 from . import afisha as afisha_client
 from . import database as db
 from .auth import create_session, destroy_session, get_current_user, require_user
-<<<<<<< HEAD
-from app.database import init_pool, close_pool
-=======
 
-from contextlib import asynccontextmanager
-from .database import init_pool, close_pool
->>>>>>> 46607b5ee144af0a1227f35e471cd2bb5441c619
+from app.database import init_pool, close_pool
 
 logging.basicConfig(
     level=logging.INFO,

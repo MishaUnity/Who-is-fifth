@@ -1,10 +1,7 @@
 from pprint import pprint
 
-<<<<<<< HEAD
-=======
 from fastapi import APIRouter
 from datetime import datetime, timedelta, timezone
->>>>>>> 46607b5ee144af0a1227f35e471cd2bb5441c619
 import requests
 from fastapi import APIRouter
 
@@ -90,8 +87,6 @@ def format_events_for_llm(payload: dict) -> str:
 router = APIRouter()
 
 
-<<<<<<< HEAD
-=======
 @router.get("/api/events/get_afisha")
 def get_next_month():
     begin = datetime.now(timezone.utc)
@@ -106,7 +101,6 @@ def get_next_month():
 
     return payload["events"]
 
->>>>>>> 46607b5ee144af0a1227f35e471cd2bb5441c619
 @router.get("/api/events/get")
 def get_today_events():
     payload = get_events(
