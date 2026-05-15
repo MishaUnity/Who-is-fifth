@@ -6,6 +6,16 @@ from fastapi import Request, HTTPException, status
 
 from . import database as db
 
+from fastapi import Depends, HTTPException
+from app.database import get_user_by_id
+# ... твой существующий код get_current_user ...
+
+async def require_admin(current_user: dict = Depends(get_current_user)):
+    """Dependency — пускает только если is_admin = true."""
+    if not current_user.get("is_admin"):
+        raise HTTPException(status_code=403, detail="Доступ только для администраторов")
+    return current_user
+
 logger = logging.getLogger(__name__)
 
 _sessions: dict[str, str] = {}

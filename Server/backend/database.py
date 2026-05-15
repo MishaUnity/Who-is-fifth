@@ -52,7 +52,12 @@ def get_pool() -> asyncpg.Pool:
 
 # ── Users ─────────────────────────────────────────────────────────────
 
-async def create_user(username: str, password: str, role: str = "user") -> str:
+async def create_user(
+    username: str,
+    password: str,
+    role: str = "user",
+    is_admin: bool = False,
+) -> str:
     user_id = str(uuid.uuid4())
     password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     now = datetime.now(timezone.utc)
@@ -60,32 +65,38 @@ async def create_user(username: str, password: str, role: str = "user") -> str:
     async with get_pool().acquire() as conn:
         await conn.execute(
             """
-            INSERT INTO users (id, username, password_hash, role, created_at)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO users (id, username, password_hash, role, is_admin, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6)
             """,
-            user_id, username, password_hash, role, now,
+            user_id, username, password_hash, role, is_admin, now,
         )
     return user_id
 
 
 async def verify_user(username: str, password: str) -> Optional[dict]:
-    """Возвращает {"id", "username", "role"} или None."""
     async with get_pool().acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT id, username, password_hash, role FROM users WHERE username = $1",
+            """
+            SELECT id, username, password_hash, role, is_admin
+            FROM users WHERE username = $1
+            """,
             username,
         )
     if row is None:
         return None
     if bcrypt.checkpw(password.encode(), row["password_hash"].encode()):
-        return {"id": row["id"], "username": row["username"], "role": row["role"]}
+        return {
+            "id":       row["id"],
+            "username": row["username"],
+            "role":     row["role"],
+            "is_admin": row["is_admin"],
+        }
     return None
-
 
 async def get_user_by_id(user_id: str) -> Optional[dict]:
     async with get_pool().acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT id, username, role, created_at FROM users WHERE id = $1",
+            "SELECT id, username, role, is_admin, created_at FROM users WHERE id = $1",
             user_id,
         )
     return dict(row) if row else None
@@ -205,36 +216,69 @@ async def log_tokens(
 
 
 async def get_stats() -> dict:
-    """Агрегированная статистика для админки."""
     async with get_pool().acquire() as conn:
+
         totals = await conn.fetchrow(
             """
             SELECT
-                COUNT(DISTINCT u.id)                            AS total_users,
-                COUNT(DISTINCT s.id)                            AS total_sessions,
-                COUNT(m.id)                                     AS total_messages,
+                COUNT(DISTINCT u.id)                                        AS total_users,
+                COUNT(DISTINCT s.id)                                        AS total_sessions,
+                COUNT(m.id) FILTER (WHERE m.role = 'user')                  AS total_requests,
                 COUNT(m.id) FILTER (
-                    WHERE m.created_at::date = CURRENT_DATE
-                )                                               AS messages_today,
-                COALESCE(SUM(tl.tokens_used), 0)               AS total_tokens
+                    WHERE m.role = 'user' AND m.created_at::date = CURRENT_DATE
+                )                                                           AS requests_today,
+                COUNT(DISTINCT s.id) FILTER (
+                    WHERE s.last_active::date = CURRENT_DATE
+                )                                                           AS sessions_today,
+                COALESCE(SUM(tl.tokens_used), 0)                           AS total_tokens,
+                COALESCE(SUM(tl.tokens_used) FILTER (
+                    WHERE tl.created_at::date = CURRENT_DATE
+                ), 0)                                                       AS tokens_today
             FROM users u
-            LEFT JOIN sessions s  ON s.user_id  = u.id
-            LEFT JOIN messages m  ON m.session_id = s.id AND m.role = 'user'
-            LEFT JOIN token_log tl ON tl.user_id = u.id
-            """,
-        )
-        top = await conn.fetch(
+            LEFT JOIN sessions  s  ON s.user_id    = u.id
+            LEFT JOIN messages  m  ON m.session_id = s.id
+            LEFT JOIN token_log tl ON tl.user_id   = u.id
             """
-            SELECT u.username, COUNT(m.id) AS messages
-            FROM users u
-            JOIN sessions s  ON s.user_id   = u.id
-            JOIN messages m  ON m.session_id = s.id AND m.role = 'user'
-            GROUP BY u.id
-            ORDER BY messages DESC
-            LIMIT 5
-            """,
         )
+
+        # Активность по дням за последние 7 дней
+        daily = await conn.fetch(
+            """
+            SELECT
+                m.created_at::date          AS day,
+                COUNT(*)                    AS requests,
+                COALESCE(SUM(tl.tokens_used), 0) AS tokens
+            FROM messages m
+            LEFT JOIN token_log tl
+                ON  tl.session_id = m.session_id
+                AND tl.created_at::date = m.created_at::date
+            WHERE m.role = 'user'
+              AND m.created_at >= CURRENT_DATE - INTERVAL '6 days'
+            GROUP BY day
+            ORDER BY day ASC
+            """
+        )
+
+        # Топ-5 пользователей по запросам
+        top_users = await conn.fetch(
+            """
+            SELECT
+                u.username,
+                COUNT(m.id)                     AS requests,
+                COALESCE(SUM(tl.tokens_used), 0) AS tokens
+            FROM users u
+            JOIN sessions  s  ON s.user_id    = u.id
+            JOIN messages  m  ON m.session_id = s.id AND m.role = 'user'
+            LEFT JOIN token_log tl ON tl.user_id = u.id
+            WHERE u.is_admin = false
+            GROUP BY u.id
+            ORDER BY requests DESC
+            LIMIT 5
+            """
+        )
+
     return {
         **dict(totals),
-        "top_users": [dict(r) for r in top],
+        "daily_activity": [dict(r) for r in daily],
+        "top_users":      [dict(r) for r in top_users],
     }
