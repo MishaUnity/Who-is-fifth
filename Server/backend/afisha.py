@@ -1,3 +1,4 @@
+import pprint
 import requests
 
 from fastapi import APIRouter
@@ -83,18 +84,18 @@ def format_events_for_llm(payload: dict) -> str:
 
 router = APIRouter()
 
-def get_today_range():
-    now = datetime.now(timezone.utc)
-    begin = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    end = now.replace(hour=23, minute=59, second=59, microsecond=999000)
-    return (
-        begin.isoformat().replace("+00:00", "Z"),
-        end.isoformat().replace("+00:00", "Z"),
-    )
 
 
 @router.get("/api/events/get")
 def get_today_events():
-    begin_date, end_date = get_today_range()
-    payload = get_events(begin_date=begin_date, end_date=end_date, limit=50)
+
+    payload = get_events(
+        begin_date="2025-08-04T07:00:00.000Z",
+        end_date="2025-08-05T07:00:00.000Z",
+        limit=12,
+        offset=0
+    )
+
+    pprint(payload)
+
     return payload["events"]
