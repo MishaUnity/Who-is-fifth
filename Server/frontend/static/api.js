@@ -37,20 +37,17 @@
 //     }
 // }
 
-function getEvents()
+async function getEvents(callback)
 {
     var headers = { 'Content-Type': 'application/json' };
 
-    console.log("Я работаю!");
-
-    try {
-        const responce = await fetch('/api/events/get', {
+    fetch('/api/events/get_afisha', {
             method: 'GET',
             headers: headers
-        });
-    } catch (err) {
-        console.error(err);
-    } finally {
-        console.log(responce);
-    }
+        })
+    .then(response => response.json())
+    .then(data => {
+        callback(data);
+    })
+    .catch(error => console.error('Ошибка:', error));
 }

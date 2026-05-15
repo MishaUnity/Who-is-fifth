@@ -99,7 +99,7 @@ body
     margin-bottom: 10px;
     border-radius: 20px 0px 20px 20px;
     width: fit-content;
-    max-width: 400px;
+    max-width: 200px;
     justify-self: flex-end;
 }
 
@@ -111,7 +111,7 @@ body
     margin-bottom: 10px;
     border-radius: 0px 20px 20px 20px;
     width: fit-content;
-    max-width: 400px;
+    max-width: 200px;
 }
 
 #chatPanel
@@ -120,6 +120,29 @@ body
     margin-bottom: 20px; 
     padding-right: 10px;
     height: 300px;
+    overflow-y: auto;
+    scroll-behavior: auto; 
+    scrollbar-color: rgb(132, 136, 136) #ffffff00;
+}
+
+.EventImage 
+{
+    width: 260px;
+    height: 230px;
+    overflow: hidden;
+    border-radius: 15px;
+}
+.EventImage img 
+{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;      /* обрезает */
+    object-position: center; /* центрирует */
+}
+
+#eventPanel
+{
+    height: 600px;
     overflow-y: auto;
     scroll-behavior: auto; 
     scrollbar-color: rgb(132, 136, 136) #ffffff00;

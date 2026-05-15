@@ -89,14 +89,15 @@ def get_next_month():
     begin = datetime.now()
     end = datetime.now() + timedelta(days=30)
 
+    print(begin.isoformat())
 
     payload = get_events(
-        begin_date=begin.isoformat,
-        end_date=end.isoformat,
+        begin_date=begin.isoformat()+'Z',
+        end_date=end.isoformat()+'Z',
         offset=0
     )
 
-    return payload
+    return payload["events"]
 
 @router.get("/api/events/get")
 def get_today_events():

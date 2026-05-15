@@ -41,23 +41,3 @@ sendButton.onclick = () =>
     pushMessage("user", inputText);
     checkSendAvailability();
 }
-
-function getEvents()
-{
-    var headers = { 'Content-Type': 'application/json' };
-
-    console.log("Я работаю!");
-
-    try {
-        const responce = await fetch('/api/events/get', {
-            method: 'GET',
-            headers: headers
-        });
-    } catch (err) {
-        console.error(err);
-    } finally {
-        console.log(responce);
-    };
-}
-
-getEvents();
