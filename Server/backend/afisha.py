@@ -3,7 +3,6 @@ from pprint import pprint
 from fastapi import APIRouter
 from datetime import datetime, timedelta, timezone
 import requests
-from fastapi import APIRouter
 
 
 BASE_URL = "https://pro.sirius-ft.ru"
