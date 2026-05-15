@@ -12,7 +12,7 @@ CHAT_URL = "https://gigachat.devices.sberbank.ru/api/v1/chat/completions"
 
 class GigaChatClient:
     def __init__(self):
-        self.auth_key = "MDE5ZDJhNTktMzg2YS03ZDM0LThmMTUtMWIyNTM5ZDNjNzA0OjQwYjhmNjFhLWJiM2EtNGU4Ni04MzE1LTJmOWU3MjNhMTZlYQ=="
+        self.auth_key = os.getenv('GIGACHAT_AUTH_ID')
         self.model = os.getenv("GIGACHAT_MODEL", "GigaChat")
         self._access_token: str | None = None
         self._token_expires_at: float = 0.0

@@ -12,3 +12,4 @@ app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 @app.get("/")
 def index():
     return FileResponse("../frontend/main.html")
+
