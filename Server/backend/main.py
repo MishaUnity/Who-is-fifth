@@ -11,11 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from app.gigachat import GigaChatClient
-from app import afisha as afisha_client
-from app import database as db
-from app.auth import create_session, destroy_session, get_current_user, require_user
-from app.database import init_pool, close_pool
+from gigachat import GigaChatClient
+import afisha as afisha_client
+import database as db
+from auth import create_session, destroy_session, get_current_user, require_user
+from database import init_pool, close_pool
 
 logging.basicConfig(
     level=logging.INFO,

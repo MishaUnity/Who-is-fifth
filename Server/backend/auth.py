@@ -4,7 +4,6 @@ from typing import Optional
 from datetime import datetime
 
 from database import get_stats, get_all_users, get_user_by_id
-from auth import require_admin
 
 router = APIRouter(prefix="/admin", tags=["Администратор"])
 
