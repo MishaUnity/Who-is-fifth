@@ -1,12 +1,12 @@
-import pprint
-import requests
+from pprint import pprint
 
 from fastapi import APIRouter
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import requests
 
 
 BASE_URL = "https://pro.sirius-ft.ru"
+
 
 def get_events(
     begin_date: str = None,
@@ -62,7 +62,8 @@ def get_events(
         raise ValueError("Недопустимый диапазон возраста")
     else:
         raise RuntimeError(f"Ошибка {code}: {data.get('description')}")
-    
+
+
 def format_events_for_llm(payload: dict) -> str:
     lines = [f"Найдено мероприятий: {payload['count']}\n"]
     for e in payload["events"]:
@@ -84,16 +85,16 @@ def format_events_for_llm(payload: dict) -> str:
 
 router = APIRouter()
 
+
 @router.get("/api/events/get_afisha")
 def get_next_month():
-    begin = datetime.now()
-    end = datetime.now() + timedelta(days=30)
-
-    print(begin.isoformat())
+    begin = datetime.now(timezone.utc)
+    end = begin + timedelta(days=30)
 
     payload = get_events(
-        begin_date=begin.isoformat()+'Z',
-        end_date=end.isoformat()+'Z',
+        begin_date=begin.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+        end_date=end.strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+        limit=50,
         offset=0
     )
 
@@ -101,14 +102,11 @@ def get_next_month():
 
 @router.get("/api/events/get")
 def get_today_events():
-
     payload = get_events(
         begin_date="2025-08-04T07:00:00.000Z",
         end_date="2025-08-05T07:00:00.000Z",
         limit=12,
         offset=0
     )
-
     pprint(payload)
-
     return payload["events"]

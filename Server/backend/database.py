@@ -94,16 +94,25 @@ async def verify_user(username: str, password: str) -> Optional[dict]:
     return None
 
 async def get_user_by_id(user_id: str) -> Optional[dict]:
+    """Достаём пользователя по id — используется в get_current_user."""
     async with get_pool().acquire() as conn:
         row = await conn.fetchrow(
-            "SELECT id, username, role, is_admin, created_at FROM users WHERE id = $1",
+            """
+            SELECT id, username, role, is_admin, is_active, created_at
+            FROM users
+            WHERE id = $1
+            """,
             user_id,
         )
     return dict(row) if row else None
 
 
+
 async def get_all_users() -> list[dict]:
-    """Для админки — все пользователи с агрегатами активности."""
+    """
+    Все пользователи с агрегатами активности.
+    Используется в GET /admin/users.
+    """
     async with get_pool().acquire() as conn:
         rows = await conn.fetch(
             """
@@ -111,12 +120,15 @@ async def get_all_users() -> list[dict]:
                 u.id,
                 u.username,
                 u.role,
+                u.is_admin,
+                u.is_active,
                 u.created_at,
                 COUNT(DISTINCT s.id)  AS total_sessions,
                 COUNT(m.id)           AS total_messages
             FROM users u
-            LEFT JOIN sessions s ON s.user_id = u.id
-            LEFT JOIN messages m ON m.session_id = s.id AND m.role = 'user'
+            LEFT JOIN sessions s ON s.user_id   = u.id
+            LEFT JOIN messages m ON m.session_id = s.id
+                                AND m.role = 'user'
             GROUP BY u.id
             ORDER BY u.created_at DESC
             """,
