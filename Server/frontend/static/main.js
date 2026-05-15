@@ -1,6 +1,14 @@
 const chatContainer = document.querySelector('#chatContainer');
 const sendButton = document.querySelector('#sendButton');
 const messageInput = document.querySelector('#messageInput');
+const chatLoading = document.querySelector('#chatLoading');
+
+var awaitingResponce = false;
+
+function setChatLoading(state)
+{
+    chatLoading.style.display = state ? "flex" : "none";
+}
 
 function pushMessage(source, text)
 {
@@ -18,7 +26,7 @@ function pushMessage(source, text)
 
 function checkSendAvailability()
 {
-    if (messageInput.value == "")
+    if (messageInput.value == "" || awaitingResponce)
     {
         sendButton.disabled = true;
         return false;
@@ -28,12 +36,26 @@ function checkSendAvailability()
     return true;
 }
 
-messageInput.oninput = () =>
+messageInput.oninput = (event) =>
 {
     checkSendAvailability();
 }
 
+messageInput.onkeydown = (event) => 
+{
+    if (event.key === 'Enter' && !event.shiftKey) 
+    {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
 sendButton.onclick = () =>
+{
+    sendMessage();
+}
+
+function sendMessage()
 {
     var inputText = messageInput.value;
     messageInput.value = "";
@@ -41,23 +63,3 @@ sendButton.onclick = () =>
     pushMessage("user", inputText);
     checkSendAvailability();
 }
-
-function getEvents()
-{
-    var headers = { 'Content-Type': 'application/json' };
-
-    console.log("Я работаю!");
-
-    try {
-        const responce = await fetch('/api/events/get', {
-            method: 'GET',
-            headers: headers
-        });
-    } catch (err) {
-        console.error(err);
-    } finally {
-        console.log(responce);
-    };
-}
-
-getEvents();

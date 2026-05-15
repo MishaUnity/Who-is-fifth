@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head style="padding: 0;">
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+
+    <meta charset="utf-8">
+    <title>Авторизация</title>
+</head>
+<body>
+    <!-- Верх -->
+    <div class="TopBar">
+        <div style="margin-left: 10px;" class="Container">
+            <div class="Container" style="margin: 20px; align-items: center;">
+                <img src="static/images/sirius-logo.svg" width="80px" style="margin-right: 20px;">
+                <img src="static/images/aisa-logo.svg" width="80px">
+            </div>
+            <div class="LineVertical" style="margin-right: 20px;"></div>
+            <p class="TitleText" style="align-self: center;">Авторизация</p>
+        </div>
+    </div>
+
+    <!-- Логин Панель -->
+    <div style="margin-top: 40px;">
+        <div style="justify-self: center; width: 450px;" class="Panel">
+            <p style="justify-self: center;">Авторизация</p>
+
+            <a>Имя пользователя:</a>
+            <div class="InputAreaBorder">
+                <textarea id="usernameInput" class="TextInput" placeholder="Имя пользователя" rows="1" maxlength="40"></textarea>
+            </div>
+
+            <a>Пароль:</a>
+            <div class="InputAreaBorder">
+                <textarea id="passwordInput" class="TextInput" placeholder="Пароль" rows="1" maxlength="40"></textarea>
+            </div>
+
+            <div style="display: flex; flex-direction: row; margin-right: 20px; margin-top: 20px;">
+                <button class="AccentButton" style="flex: 1; margin-right: 20px;">Войти</button>
+                <button class="AccentButton" style="flex: 1;">Зарегистрироваться</button>
+            </div>
+        </div>
+    </div>
+
+    <script scr="static/api.js"></script>
+    
+</body>
+</html>
