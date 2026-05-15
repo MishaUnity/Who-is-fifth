@@ -16,7 +16,7 @@ from . import database as db
 from .auth import create_session, destroy_session, get_current_user, require_user
 
 from contextlib import asynccontextmanager
-from app.database import init_pool, close_pool
+from .database import init_pool, close_pool
 
 @asynccontextmanager
 async def lifespan(app):
@@ -48,6 +48,7 @@ SYSTEM_PROMPT = (
     "Ты — ИИ-ассистент сервиса Афиша-СИРИУС. "
     "Помогай пользователям находить мероприятия и отвечай на вопросы. "
     "Используй предоставленные данные о мероприятиях."
+    ""
 )
 
 
