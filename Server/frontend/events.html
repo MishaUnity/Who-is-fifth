@@ -37,23 +37,15 @@
         </div>
     </template>
 
-    <!-- Панель чата -->
+    <!-- Панель поиска -->
     <div class="Panel" style="margin: 60px;">
-        <div>
-            <h2 class="TitleText">Добро пожаловать</h2>
-            <p>
-                Я — ассистент сервиса Афиша-СИРИУС.<br>
-                Спросите меня о мероприятиях, событиях или о чём угодно
-            </p>
-        </div>
-
-        <div class="Panel" id="chatPanel">
-            <div id="chatContainer" style="margin-top: 20px;"></div>
-        </div>
+        <p style="margin: 15px 0px 0px 0px">
+            Я — ассистент сервиса Афиша-СИРИУС. Спросите, и я найду мероприятия специально для вас.
+        </p>
 
         <div class="Container">
-            <div class="Container" style="max-width: 600px; flex: 1; border: solid 2px rgb(136, 208, 196); border-radius: 10px; padding: 10px; margin-right: 20px;">
-                <textarea id="messageInput" placeholder="Напишите сообщение…" rows="1" maxlength="4000"></textarea>
+            <div class="Container" style="max-width: 600px; flex: 1; border: solid 2px rgb(136, 208, 196); border-radius: 10px; padding: 10px; margin-right: 20px; margin-top: 20px;">
+                <textarea id="messageInput" placeholder="Напишите запрос…" rows="1" maxlength="4000"></textarea>
                 <button id="sendButton" disabled>Отправить</button>
             </div>
         </div>
