@@ -1,12 +1,11 @@
-import pprint
-import requests
+from pprint import pprint
 
-from fastapi import APIRouter
-from datetime import datetime, timezone
 import requests
+from fastapi import APIRouter
 
 
 BASE_URL = "https://pro.sirius-ft.ru"
+
 
 def get_events(
     begin_date: str = None,
@@ -62,7 +61,8 @@ def get_events(
         raise ValueError("Недопустимый диапазон возраста")
     else:
         raise RuntimeError(f"Ошибка {code}: {data.get('description')}")
-    
+
+
 def format_events_for_llm(payload: dict) -> str:
     lines = [f"Найдено мероприятий: {payload['count']}\n"]
     for e in payload["events"]:
@@ -85,17 +85,13 @@ def format_events_for_llm(payload: dict) -> str:
 router = APIRouter()
 
 
-
 @router.get("/api/events/get")
 def get_today_events():
-
     payload = get_events(
         begin_date="2025-08-04T07:00:00.000Z",
         end_date="2025-08-05T07:00:00.000Z",
         limit=12,
         offset=0
     )
-
     pprint(payload)
-
     return payload["events"]
