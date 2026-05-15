@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
-from app.database import get_stats, get_all_users, get_user_by_id
-from app.auth import require_admin
+from database import get_stats, get_all_users, get_user_by_id
+from auth import require_admin
 
 router = APIRouter(prefix="/admin", tags=["Администратор"])
 
