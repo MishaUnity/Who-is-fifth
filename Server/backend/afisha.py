@@ -1,5 +1,10 @@
 import requests
 
+from fastapi import APIRouter
+from datetime import datetime, timezone
+import requests
+
+
 BASE_URL = "https://pro.sirius-ft.ru"
 
 def get_events(
@@ -74,3 +79,22 @@ def format_events_for_llm(payload: dict) -> str:
             f"  Место: {e.get('eventPlace') or e.get('venueName', '—')}\n"
         )
     return "\n".join(lines)
+
+
+router = APIRouter()
+
+def get_today_range():
+    now = datetime.now(timezone.utc)
+    begin = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = now.replace(hour=23, minute=59, second=59, microsecond=999000)
+    return (
+        begin.isoformat().replace("+00:00", "Z"),
+        end.isoformat().replace("+00:00", "Z"),
+    )
+
+
+@router.get("/api/events/get")
+def get_today_events():
+    begin_date, end_date = get_today_range()
+    payload = get_events(begin_date=begin_date, end_date=end_date, limit=50)
+    return payload["events"]
