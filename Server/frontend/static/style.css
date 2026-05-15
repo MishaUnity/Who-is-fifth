@@ -60,9 +60,6 @@ body
     flex: 1;
     border: none;
     padding: 8px 0;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.45;
     outline: none;
     background: transparent;
     font-family: 'Rubik', sans-serif;
@@ -71,21 +68,59 @@ body
     max-height: 100px;
 }
 
-#sendBtn 
+#sendButton
 {
     background: rgb(136, 208, 196);
     border: none;
     border-radius: 10px;
     padding: 6px 18px;
-    font-size: 12px;
-    font-weight: 500;
     font-family: 'Rubik', sans-serif;
     color: #0a2b2b;
     cursor: pointer;
     transition: background 0.2s;
 }
 
-#sendBtn:hover 
+#sendButton:hover 
 {
     background: rgb(116, 188, 176);
+}
+
+#sendButton:disabled 
+{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.MessageUser
+{
+    background-color: rgb(136, 208, 196);
+    padding: 7px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    border-radius: 20px 0px 20px 20px;
+    width: fit-content;
+    max-width: 400px;
+    justify-self: flex-end;
+}
+
+.MessageOther
+{
+    background-color: rgb(136, 208, 196);
+    padding: 7px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    border-radius: 0px 20px 20px 20px;
+    width: fit-content;
+    max-width: 400px;
+}
+
+#chatPanel
+{
+    margin-right: 20px; 
+    margin-bottom: 20px; 
+    padding-right: 10px;
+    height: 300px;
+    overflow-y: auto;
+    scroll-behavior: auto; 
+    scrollbar-color: rgb(132, 136, 136) #ffffff00;
 }
