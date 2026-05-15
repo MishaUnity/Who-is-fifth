@@ -15,7 +15,6 @@ from .gigachat import GigaChatClient
 from . import afisha as afisha_client
 from . import database as db
 from .auth import create_session, destroy_session, get_current_user, require_user
-
 from app.database import init_pool, close_pool
 
 logging.basicConfig(
@@ -49,7 +48,6 @@ SYSTEM_PROMPT = (
     "Ты — ИИ-ассистент сервиса Афиша-СИРИУС. "
     "Помогай пользователям находить мероприятия и отвечай на вопросы. "
     "Используй предоставленные данные о мероприятиях."
-    ""
 )
 
 
@@ -107,22 +105,26 @@ async def logout(request: Request):
 
 
 @app.get("/api/auth/me")
-async def me(current_user=Depends(get_current_user)):
+async def me(current_user: dict = Depends(get_current_user)):
     if not current_user:
         raise HTTPException(status_code=401, detail="Не авторизован")
-    return {"user_id": current_user}
+    return {
+        "user_id":  current_user["id"],
+        "username": current_user["username"],
+        "is_admin": current_user["is_admin"],
+    }
 
 
 # ── Chat ───────────────────────────────────────────────────────────────
 
 @app.get("/api/chat/sessions")
-async def get_sessions(current_user: str = Depends(require_user)):
-    sessions = await db.get_user_sessions(current_user)
+async def get_sessions(current_user: dict = Depends(require_user)):
+    sessions = await db.get_user_sessions(current_user["id"])
     return {"sessions": sessions}
 
 
 @app.post("/api/chat")
-async def chat_endpoint(payload: ChatRequest, current_user: str = Depends(require_user)):
+async def chat_endpoint(payload: ChatRequest, current_user: dict = Depends(require_user)):
     message = payload.message.strip()
     session_id = payload.session_id.strip()
 
@@ -131,7 +133,7 @@ async def chat_endpoint(payload: ChatRequest, current_user: str = Depends(requir
     if not session_id:
         raise HTTPException(status_code=400, detail="session_id is required")
 
-    await db.ensure_session(session_id, current_user)
+    await db.ensure_session(session_id, current_user["id"])
 
     try:
         payload_afisha = await asyncio.get_event_loop().run_in_executor(
@@ -156,19 +158,19 @@ async def chat_endpoint(payload: ChatRequest, current_user: str = Depends(requir
 
     await db.save_message(session_id, "user", message)
     await db.save_message(session_id, "assistant", result["content"])
-    await db.log_tokens(session_id, current_user, result["tokens_used"], "/api/chat")
+    await db.log_tokens(session_id, current_user["id"], result["tokens_used"], "/api/chat")
 
     return {
-        "content": result["content"],
+        "content":     result["content"],
         "tokens_used": result["tokens_used"],
-        "session_id": session_id,
+        "session_id":  session_id,
     }
 
 
 # ── Admin ──────────────────────────────────────────────────────────────
 
 @app.get("/api/stats")
-async def get_stats(limit: int = 100, current_user: str = Depends(require_user)):
+async def get_stats(limit: int = 100, current_user: dict = Depends(require_user)):
     entries = await db.get_stats(limit=min(limit, 500))
     total_tokens = sum(e.get("tokens_used", 0) for e in entries)
     return {"total_tokens": total_tokens, "entries": entries, "count": len(entries)}
