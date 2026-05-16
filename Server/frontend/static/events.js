@@ -9,27 +9,32 @@ function pushEvent(data)
 {
     var template = document.querySelector("#EventCard");
 
-    var element = template.content.cloneNode(true);
-    element.querySelector('#name').textContent = data['eventName'];
-    element.querySelector('#image').src = data['eventImage']['url'];
-    element.querySelector('#place').textContent = data['eventPlace'];
+    // Оборачиваем фрагмент в div, чтобы querySelector и onclick работали корректно
+    var wrapper = document.createElement('div');
+    wrapper.appendChild(template.content.cloneNode(true));
+
+    wrapper.querySelector('#name').textContent = data['eventName'];
+    wrapper.querySelector('#image').src = data['eventImage']['url'];
+    wrapper.querySelector('#place').textContent = data['eventPlace'];
 
     var timeLabel = data['eventStartDate'] + " | ";
     if (data['isAllDay'] == true)
         timeLabel += "Весь день";
     else
         timeLabel += data['eventStartTime'] + "-" + data['eventEndTime'];
-    element.querySelector('#time').textContent = timeLabel;
+    wrapper.querySelector('#time').textContent = timeLabel;
 
-    eventContainer.appendChild(element);
+    // Добавляем в DOM, потом вешаем обработчик
+    eventContainer.appendChild(wrapper);
+
+    var detailsBtn = wrapper.querySelector('#detailsButton');
+    detailsBtn.addEventListener('click', () => askAboutEvent(data));
 }
 
 function askAboutEvent(data)
 {
     var eventName = data['eventName'] || 'это мероприятие';
-    var eventPlace = data['eventPlace'] || 'сириус';
-    var eventStartDate = data['eventStartDate'] || 'сириус';
-    var question = 'Расскажи подробнее о мероприятии ' + eventName + ' в ' + eventPlace + ' ' + eventStartDate;
+    var question = 'Расскажи подробнее о мероприятии «' + eventName + '»';
 
     pushMessage('user', question);
 
@@ -51,7 +56,7 @@ function askAboutEvent(data)
         if (chatPanel) chatPanel.scrollTop = chatPanel.scrollHeight;
     });
 }
-    
+
 getEvents((data) =>
 {
     data.forEach(element => {

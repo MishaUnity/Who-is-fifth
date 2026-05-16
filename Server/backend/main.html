@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head style="padding: 0;">
+
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/style.css">
+
+    <meta charset="utf-8">
+    <title>Главная страница</title>
+</head>
+<body>
+    <!-- Верх -->
+    <div class="TopBar">
+        <div style="margin-left: 10px;" class="Container">
+            <div class="Container" style="margin: 20px; align-items: center;">
+                <img src="static/images/sirius-logo.svg" width="80px" style="margin-right: 20px;">
+                <img src="static/images/aisa-logo.svg" width="80px">
+            </div>
+            <div class="LineVertical" style="margin-right: 20px;"></div>
+            <p class="TitleText" style="align-self: center;">Сириус Афиша - Ассистент</p>
+        </div>
+    </div>
+
+    <!-- Образцы карточек -->
+    <template id="UserMessageCard">
+        <div>
+            <div class="MessageUser">
+                <p style="margin: 5px; overflow-wrap: break-word;" id="text">Сообщение</p>
+            </div>
+        </div>
+    </template>
+    <template id="OtherMessageCard">
+        <div>
+            <div class="MessageOther">
+                <p style="margin: 5px; overflow-wrap: break-word;" id="text">Сообщение</p>
+            </div>
+        </div>
+    </template>
+
+    <div style="display: flex; flex-direction: row; margin: 60px;">
+
+        <!-- Панель чата -->
+        <div class="Panel" style="margin-right: 50px; height: min-content;">
+            <div style="margin-right: 20px;">
+                <h2 class="TitleText">Добро пожаловать</h2>
+                <p>
+                    Я — ассистент сервиса Афиша-СИРИУС.<br>
+                    Спросите меня о мероприятиях или о чём угодно
+                </p>
+            </div>
+
+            <div class="Panel" id="chatPanel">
+                <div id="chatContainer" style="margin-top: 20px;"></div>
+            </div>
+            <div style="display: flex; flex-direction: row; position: fixed; margin-top: -60px; margin-left: 10px; display: none;" id="chatLoading">
+                <div class="LoadIcon"></div>
+                <p style="margin: 5px">Ассистент думает...</p>
+            </div>
+
+            <div class="Container">
+                <div class="Container" style="max-width: 600px; flex: 1; border: solid 2px rgb(136, 208, 196); border-radius: 10px; padding: 10px; margin-right: 20px;">
+                    <textarea id="messageInput" placeholder="Напишите сообщение…" rows="1" maxlength="4000"></textarea>
+                    <button id="sendButton" disabled>Отправить</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px; margin-bottom: 0px;">
+                <div class="ImageButton" id="deleteChatButton">
+                    <img src="static/images/delete.svg" width="25px" >
+                </div>
+            </div>
+        </div>
+
+        <template id="EventCard">
+            <div class="Panel" style="padding: 0px; width: fit-content; display: flex; flex-direction: row; margin-bottom: 20px;">
+                <div class="EventImage">
+                    <img id="image" class="EventImage">
+                </div>
+                <div style="width: 350px; margin: 15px; display: flex; flex-direction: column;">
+                    <div style="padding: 10px; background: rgb(116, 188, 176); border-radius: 10px; margin-bottom: 8px;">
+                        <a id="name" style="color: white;">Большой летний музыкальный фестиваль</a>
+                    </div>
+                    <a id="place">Место проведения</a>
+
+                    <div style="flex: 1"></div>
+
+                    <a id="time">Дата проведения</a>
+
+                    <button id="detailsButton" class="DetailsButton">✦ Узнать подробнее</button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Панель мероприятий -->
+        <div class="Panel" style="flex: 1; padding-left: 20px; padding-bottom: 0px;">
+            <div id="eventPanel">
+                <div style="display: grid; margin-top: 20px;" id="eventContainer">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="static/api.js"></script>
+    <script src="static/main.js"></script>
+    <script src="static/events.js"></script>
+    
+</body>
+</html>
