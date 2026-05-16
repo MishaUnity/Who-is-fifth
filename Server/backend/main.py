@@ -15,8 +15,8 @@ from pydantic import BaseModel
 from gigachat import GigaChatClient
 import afisha as afisha_client
 import database as db
-from auth import create_session, destroy_session, get_current_user, require_user
-from database import init_pool, close_pool
+from auth import create_session, destroy_session, get_current_user, require_user, require_admin  # ← добавили require_admin
+from database import init_pool, close_pool, get_stats_detailed  # ← добавили get_stats_detailed
 
 logging.basicConfig(
     level=logging.INFO,
@@ -64,6 +64,9 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     username: str
     password: str
+
+class SimpleChatRequest(BaseModel):
+    text: str
 
 
 @app.get("/api/health")
@@ -168,37 +171,6 @@ async def chat_endpoint(payload: ChatRequest, current_user: dict = Depends(requi
     }
 
 
-# ── Admin ──────────────────────────────────────────────────────────────
-
-@app.get("/api/stats")
-async def get_stats(limit: int = 100, current_user: dict = Depends(require_user)):
-    entries = await db.get_stats(limit=min(limit, 500))
-    total_tokens = sum(e.get("tokens_used", 0) for e in entries)
-    return {"total_tokens": total_tokens, "entries": entries, "count": len(entries)}
-
-
-@app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception):
-    logger.error("Unhandled error on %s: %s", request.url, exc)
-    return JSONResponse(status_code=500, content={"error": str(exc)})
-
-@app.get("/api/events/get_afisha")
-async def render_afisha():
-    return afisha_client.get_next_month()
-
-@app.get("/api/events/get")
-async def get_today():
-    return afisha_client.get_today_events()
-
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-
-@app.get("/")
-def index():
-    return FileResponse("../frontend/main.html")
-
-class SimpleChatRequest(BaseModel):
-    text: str
-
 @app.post("/api/chat/send")
 async def chat_send(payload: SimpleChatRequest):
     text = payload.text.strip()
@@ -220,3 +192,46 @@ async def chat_send(payload: SimpleChatRequest):
     )
 
     return {"text": result["content"]}
+
+
+# ── Admin ──────────────────────────────────────────────────────────────
+
+@app.get("/api/stats")
+async def get_stats(limit: int = 100, current_user: dict = Depends(require_user)):
+    entries = await db.get_stats(limit=min(limit, 500))
+    total_tokens = sum(e.get("tokens_used", 0) for e in entries)
+    return {"total_tokens": total_tokens, "entries": entries, "count": len(entries)}
+
+
+@app.get("/admin/detailed-stats")  # ← новый эндпоинт для страницы статистики
+async def detailed_stats(
+    days: int = 7,
+    current_user: dict = Depends(require_admin),
+):
+    return await get_stats_detailed(days)
+
+
+# ── Afisha ─────────────────────────────────────────────────────────────
+
+@app.get("/api/events/get_afisha")
+async def render_afisha():
+    return afisha_client.get_next_month()
+
+@app.get("/api/events/get")
+async def get_today():
+    return afisha_client.get_today_events()
+
+
+# ── Static / Frontend ──────────────────────────────────────────────────
+
+app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+
+@app.get("/")
+def index():
+    return FileResponse("../frontend/main.html")
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled error on %s: %s", request.url, exc)
+    return JSONResponse(status_code=500, content={"error": str(exc)})
