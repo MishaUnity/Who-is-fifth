@@ -4,6 +4,8 @@ const messageInput = document.querySelector('#messageInput');
 const chatLoading = document.querySelector('#chatLoading');
 const deleteChatButton = document.querySelector('#deleteChatButton');
 
+const accountLabel = document.querySelector('#accountLabel');
+
 var awaitingResponce = false;
 
 function setChatLoading(state)
@@ -100,3 +102,21 @@ getChatHistory((data) =>
         pushMessage(element['role'], element['content']);
     });
 });
+
+
+if (SESSION_ID.startsWith("session_"))
+{
+    accountLabel.textContent = "Гость | " + SESSION_ID
+    loginButton.textContent = "Войти"
+}
+else
+{
+    accountLabel.textContent = SESSION_ID
+    loginButton.textContent = "Выйти"
+}
+
+loginButton.onclick = () =>
+{
+    localStorage.removeItem("session_id");
+    window.location.replace("/login");
+}
