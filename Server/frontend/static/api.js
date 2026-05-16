@@ -37,6 +37,44 @@
 //     }
 // }
 
+// Регистрация
+async function register(username, password, callback) 
+{
+    fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+    .then(response => response.json())
+    .then(data => {
+        callback(data);
+    })
+    .catch(error => console.error('Ошибка:', error));
+}
+
+// Авторизация
+async function login(username, password, callback) 
+{
+    fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        })
+    .then(response => response.json())
+    .then(data => {
+        localStorage.setItem('auth_token', data.token);
+        callback(data);
+    })
+    .catch(error => console.error('Ошибка:', error));
+}
+
+// Получение событий
 async function getEvents(callback)
 {
     var headers = { 'Content-Type': 'application/json' };
@@ -51,3 +89,5 @@ async function getEvents(callback)
     })
     .catch(error => console.error('Ошибка:', error));
 }
+
+login("test", "test", (responce) => {console.log(responce)});

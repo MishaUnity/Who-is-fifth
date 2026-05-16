@@ -35,8 +35,6 @@ async def lifespan(app):
 
 app = FastAPI(title="Афиша-СИРИУС ИИ-Ассистент", lifespan=lifespan)
 
-router = APIRouter()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -184,11 +182,11 @@ async def generic_exception_handler(request: Request, exc: Exception):
     logger.error("Unhandled error on %s: %s", request.url, exc)
     return JSONResponse(status_code=500, content={"error": str(exc)})
 
-@router.get("/api/events/get_afisha")
+@app.get("/api/events/get_afisha")
 async def render_afisha():
     return afisha_client.get_next_month()
 
-@router.get("/api/events/get")
+@app.get("/api/events/get")
 async def get_today():
     return afisha_client.get_today_events()
 
