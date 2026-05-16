@@ -344,3 +344,54 @@ async def get_stats() -> dict:
         "daily_activity": [dict(r) for r in daily],
         "top_users":      [dict(r) for r in top_users],
     }
+
+async def get_stats_detailed(days: int = 7) -> dict:
+    async with get_pool().acquire() as conn:
+
+        totals = await conn.fetchrow(
+            """
+            SELECT
+                COUNT(DISTINCT u.id)                                    AS total_users,
+                COUNT(DISTINCT s.id)                                    AS total_sessions,
+                COUNT(m.id) FILTER (WHERE m.role = 'user')              AS total_requests,
+                COUNT(m.id) FILTER (
+                    WHERE m.role = 'user'
+                    AND m.created_at::date = CURRENT_DATE
+                )                                                       AS requests_today,
+                COUNT(DISTINCT s.id) FILTER (
+                    WHERE s.last_active::date = CURRENT_DATE
+                )                                                       AS sessions_today,
+                COALESCE(SUM(tl.tokens_used), 0)                       AS total_tokens,
+                COALESCE(SUM(tl.tokens_used) FILTER (
+                    WHERE tl.created_at::date = CURRENT_DATE
+                ), 0)                                                   AS tokens_today
+            FROM users u
+            LEFT JOIN sessions  s  ON s.user_id    = u.id
+            LEFT JOIN messages  m  ON m.session_id = s.id
+            LEFT JOIN token_log tl ON tl.user_id   = u.id
+            """
+        )
+
+        daily = await conn.fetch(
+            """
+            SELECT
+                m.created_at::date                       AS period,
+                COUNT(*)                                 AS requests,
+                COALESCE(SUM(tl.tokens_used), 0)         AS tokens_used,
+                COUNT(DISTINCT m.session_id)             AS sessions_opened
+            FROM messages m
+            LEFT JOIN token_log tl
+                ON  tl.session_id = m.session_id
+                AND tl.created_at::date = m.created_at::date
+            WHERE m.role = 'user'
+              AND m.created_at >= CURRENT_DATE - ($1 - 1) * INTERVAL '1 day'
+            GROUP BY period
+            ORDER BY period ASC
+            """,
+            days,
+        )
+
+    return {
+        **dict(totals),
+        "daily": [dict(r) for r in daily],
+    }
