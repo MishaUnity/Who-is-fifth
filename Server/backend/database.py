@@ -21,7 +21,6 @@ async def _get_db() -> aiosqlite.Connection:
 
 
 async def init_pool() -> None:
-    """Создаём таблицы при старте если их нет."""
     db = await _get_db()
     try:
         await db.executescript("""
@@ -60,7 +59,6 @@ async def init_pool() -> None:
             );
         """)
 
-        # Создаём админа если его нет
         await db.execute("""
             INSERT OR IGNORE INTO users (id, username, password_hash, role, is_admin)
             VALUES (
@@ -78,7 +76,6 @@ async def init_pool() -> None:
 
 
 async def close_pool() -> None:
-    """Для совместимости с main.py — SQLite не требует закрытия пула."""
     logger.info("Database closed")
 
 
