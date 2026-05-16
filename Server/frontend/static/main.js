@@ -96,7 +96,7 @@ SESSION_ID = getOrCreateSessionId()
 getChatHistory((data) => 
 {
     data.history.forEach(element => {
-        console.log("Meow");
-        pushMessage(element['role'], element['message']);
+        console.log(element);
+        pushMessage(element['role'], element['content']);
     });
 });

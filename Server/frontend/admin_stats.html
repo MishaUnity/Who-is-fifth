@@ -187,36 +187,25 @@
     </div>
 
     <script>
-        // ← поменяй на адрес своего сервера если не localhost
-        const API_URL = "api"
-        const TOKEN = localStorage.getItem("session_id")
-        let currentPeriod = 7
-
-        if (!TOKEN) {
-            window.location.href = "/login"
-        }
-
-        function Refresh()
+        function Refresh(callback)
         {
-            fetch('/api/stats', {
-                method: 'POST',
+            fetch('/api/admin/stats', {
+                method: 'GET',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + getToken()
-                },
-                body: JSON.stringify({
-                    message: text,
-                    session_id: SESSION_ID,
-                    history: []
-                })
+                    'Content-Type': 'application/json'
+                }
             })
             .then(response => response.json())
             .then(data => callback(data))
             .catch(error => {
                 console.error('Ошибка:', error)
-                callback(null)
             })
         }
+
+        Refresh((responce) => 
+        {
+            console.log(responce);
+        });
     </script>
 </body>
 </html>
