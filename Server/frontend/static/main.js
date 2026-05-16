@@ -59,7 +59,21 @@ function sendMessage()
 {
     var inputText = messageInput.value;
     messageInput.value = "";
-    
+
     pushMessage("user", inputText);
+
+    awaitingResponce = true;
     checkSendAvailability();
+
+    sendChatMessage(inputText, (responce, err) => {
+        awaitingResponce = false;
+        checkSendAvailability();
+
+        console.log(err, responce);
+
+        if (responce.text == null || responce.text == "")
+            return;
+        
+        pushMessage("ai", responce.text);
+    });
 }
