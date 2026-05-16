@@ -229,3 +229,29 @@ body
     scroll-behavior: auto; 
     scrollbar-color: rgb(132, 136, 136) #ffffff00;
 }
+
+.DetailsButton
+{
+    margin-top: 12px;
+    background: transparent;
+    border: 2px solid rgb(136, 208, 196);
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 13px;
+    color: rgb(10, 80, 70);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    width: 100%;
+}
+
+.DetailsButton:hover
+{
+    background: rgb(136, 208, 196);
+    color: #0a2b2b;
+}
+
+.DetailsButton:active
+{
+    background: rgb(100, 175, 163);
+}

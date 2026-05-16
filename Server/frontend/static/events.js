@@ -51,7 +51,7 @@ function askAboutEvent(data)
         if (chatPanel) chatPanel.scrollTop = chatPanel.scrollHeight;
     });
 }
-
+    
 getEvents((data) =>
 {
     data.forEach(element => {
