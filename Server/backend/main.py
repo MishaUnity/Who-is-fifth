@@ -171,9 +171,6 @@ async def chat_endpoint(payload: ChatRequest, current_user: dict = Depends(requi
         "session_id":  session_id,
     }
 
-
-<<<<<<< HEAD
-=======
 # ── Admin ──────────────────────────────────────────────────────────────
 
 @app.get("/api/stats")
@@ -196,15 +193,11 @@ async def render_afisha():
 async def get_today():
     return afisha_client.get_today_events()
 
-app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
-
-@app.get("/")
-def index():
-    return FileResponse("../frontend/main.html")
+# ── Chat ──────────────────────────────────────────────────────────────
 
 tempHistory = dict()
 
-def pushToHistory(session, message, role):
+def pushToHistory(session, role, message):
     if session not in tempHistory.keys():
         tempHistory[session] = []
     tempHistory[session].append({'role': role, 'message': message});
@@ -218,7 +211,21 @@ class SimpleChatRequest(BaseModel):
     text: str
     session: str
 
->>>>>>> 695edabebc936b61e8ebc2cb7a7f635a491019fa
+class TokenPayload(BaseModel):
+    token: str
+
+@app.post("/api/chat/history")
+async def get_history(payload: TokenPayload):
+    history = getHistory(payload.token)
+
+    return {"history": history}
+
+@app.post("/api/chat/delete")
+async def delete_history(payload: TokenPayload):
+    del tempHistory[payload.token]
+
+    return None
+
 @app.post("/api/chat/send")
 async def chat_send(payload: SimpleChatRequest):
     text = payload.text.strip()
@@ -236,14 +243,17 @@ async def chat_send(payload: SimpleChatRequest):
     history = getHistory(payload.session.strip())
 
     messages = gigachat.build_messages(text, afisha_payload, history)
-    result = await asyncio.get_event_loop().run_in_executor(
-        None, lambda: gigachat.chat(messages)
-    )
+    test = "Answer"
+    # result = await asyncio.get_event_loop().run_in_executor(
+    #     None, lambda: gigachat.chat(messages)
+    # )
 
-    pushToHistory("user", payload.session.strip(), text)
-    pushToHistory("you", payload.session.strip(), result["content"])
+    pushToHistory(payload.session.strip(), "user", text)
+    #pushToHistory("you", payload.session.strip(), result["content"])
+    pushToHistory(payload.session.strip(), "you", test)
 
-    return {"text": result["content"]}
+    return {"text": test}
+    #return {"text": result["content"]}
 
 
 # ── Admin ──────────────────────────────────────────────────────────────
@@ -282,6 +292,13 @@ app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 def index():
     return FileResponse("../frontend/main.html")
 
+@app.get("/login")
+def index():
+    return FileResponse("../frontend/login.html")
+
+@app.get("/admin")
+def index():
+    return FileResponse("../frontend/admin_stats.html")
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(request: Request, exc: Exception):

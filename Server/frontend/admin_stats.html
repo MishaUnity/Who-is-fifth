@@ -188,115 +188,35 @@
 
     <script>
         // ← поменяй на адрес своего сервера если не localhost
-        const API_URL = "http://localhost:8000"
-        const TOKEN = localStorage.getItem("token")
+        const API_URL = "api"
+        const TOKEN = localStorage.getItem("session_id")
         let currentPeriod = 7
 
         if (!TOKEN) {
-            window.location.href = "index.html"
+            window.location.href = "/login"
         }
 
-        async function loadStats(days) {
-            currentPeriod = days
-            document.getElementById("history-content").innerHTML =
-                '<p class="loading-text">Загрузка...</p>'
-
-            try {
-                const res = await fetch(`${API_URL}/admin/detailed-stats?days=${days}`, {
-                    headers: { "Authorization": `Bearer ${TOKEN}` }
+        function Refresh()
+        {
+            fetch('/api/stats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + getToken()
+                },
+                body: JSON.stringify({
+                    message: text,
+                    session_id: SESSION_ID,
+                    history: []
                 })
-
-                if (res.status === 401) {
-                    window.location.href = "index.html"
-                    return
-                }
-                if (res.status === 403) {
-                    document.getElementById("history-content").innerHTML =
-                        '<p class="error-text">Доступ запрещён — требуются права администратора</p>'
-                    return
-                }
-                if (!res.ok) throw new Error("Ошибка сервера: " + res.status)
-
-                const data = await res.json()
-                renderAll(data)
-
-            } catch(e) {
-                document.getElementById("history-content").innerHTML =
-                    `<p class="error-text">Не удалось загрузить данные: ${e.message}</p>`
-            }
-        }
-
-        function renderAll(data) {
-            document.getElementById("total-tokens").textContent   = data.total_tokens.toLocaleString("ru")
-            document.getElementById("total-requests").textContent = data.total_requests.toLocaleString("ru")
-            document.getElementById("total-users").textContent    = data.total_users.toLocaleString("ru")
-            document.getElementById("today-tokens").textContent   = data.tokens_today.toLocaleString("ru")
-            document.getElementById("today-requests").textContent = data.requests_today.toLocaleString("ru")
-            document.getElementById("today-sessions").textContent = data.sessions_today.toLocaleString("ru")
-            renderChart("chart-tok", data.daily, "tokens_used", "#6fbfb8")
-            renderChart("chart-req", data.daily, "requests",    "#1D9E75")
-            renderHistory(data.daily)
-        }
-
-        function renderChart(containerId, daily, field, color) {
-            const el = document.getElementById(containerId)
-            const values = daily.map(d => d[field])
-            const labels = daily.map(d => {
-                const date = new Date(d.period)
-                return date.toLocaleDateString("ru", {day:"numeric", month:"short"}).replace(".","")
             })
-            const max = Math.max(...values)
-            const step = values.length > 10 ? 3 : 1
-            el.innerHTML = values.map((v, i) => {
-                const pct = Math.round((v / max) * 100)
-                const opacity = (0.4 + 0.6 * (pct / 100)).toFixed(2)
-                return `<div class="chart-col">
-                    <div class="chart-bar-wrap">
-                        <div class="chart-bar" style="height:${pct}%;background:${color};opacity:${opacity};"></div>
-                    </div>
-                    <span class="chart-lbl">${i % step === 0 ? labels[i] : ''}</span>
-                </div>`
-            }).join("")
+            .then(response => response.json())
+            .then(data => callback(data))
+            .catch(error => {
+                console.error('Ошибка:', error)
+                callback(null)
+            })
         }
-
-        function renderHistory(daily) {
-            const el = document.getElementById("history-content")
-            if (!daily || daily.length === 0) {
-                el.innerHTML = '<p class="loading-text">Нет данных</p>'
-                return
-            }
-            const rows = [...daily].reverse().map(d => {
-                const date = new Date(d.period).toLocaleDateString("ru", {
-                    day: "numeric", month: "long"
-                })
-                return `<tr>
-                    <td>${date}</td>
-                    <td>${d.requests.toLocaleString("ru")}</td>
-                    <td>${d.tokens_used.toLocaleString("ru")}</td>
-                    <td>${Math.round(d.tokens_used / d.requests).toLocaleString("ru")}</td>
-                </tr>`
-            }).join("")
-
-            el.innerHTML = `<table class="history-table">
-                <thead>
-                    <tr>
-                        <th>Дата</th>
-                        <th>Запросов</th>
-                        <th>Токенов</th>
-                        <th>Ср. токенов / запрос</th>
-                    </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-            </table>`
-        }
-
-        function setPeriod(days, btn) {
-            document.querySelectorAll(".period-btn").forEach(b => b.classList.remove("active"))
-            btn.classList.add("active")
-            loadStats(days)
-        }
-
-        loadStats(7)
     </script>
 </body>
 </html>

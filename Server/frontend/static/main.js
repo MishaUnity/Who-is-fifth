@@ -2,6 +2,7 @@ const chatContainer = document.querySelector('#chatContainer');
 const sendButton = document.querySelector('#sendButton');
 const messageInput = document.querySelector('#messageInput');
 const chatLoading = document.querySelector('#chatLoading');
+const deleteChatButton = document.querySelector('#deleteChatButton');
 
 var awaitingResponce = false;
 
@@ -23,6 +24,11 @@ function pushMessage(source, text)
     textElement.textContent = text;
 
     chatContainer.appendChild(element);
+}
+
+function cleanMessages()
+{
+    chatContainer.replaceChildren();
 }
 
 function checkSendAvailability()
@@ -56,6 +62,14 @@ sendButton.onclick = () =>
     sendMessage();
 }
 
+deleteChatButton.onclick = () =>
+{
+    deleteChatHistory(() => 
+    {
+        cleanMessages();
+    });
+}
+
 function sendMessage()
 {
     var inputText = messageInput.value;
@@ -70,11 +84,19 @@ function sendMessage()
         setChatLoading(false);
         checkSendAvailability();
 
-        console.log(err, responce);
-
         if (responce.text == null || responce.text == "")
             return;
         
         pushMessage("ai", responce.text);
     });
 }
+
+SESSION_ID = getOrCreateSessionId()
+
+getChatHistory((data) => 
+{
+    data.history.forEach(element => {
+        console.log("Meow");
+        pushMessage(element['role'], element['message']);
+    });
+});

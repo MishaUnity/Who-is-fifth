@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 function sendChatMessage(text, callback)
 {
     var headers = { 'Content-Type': 'application/json' };
@@ -21,7 +19,6 @@ function sendChatMessage(text, callback)
     });
 }
 
->>>>>>> 695edabebc936b61e8ebc2cb7a7f635a491019fa
 function getOrCreateSessionId() {
     let sid = localStorage.getItem("session_id")
     if (!sid) {
@@ -31,49 +28,64 @@ function getOrCreateSessionId() {
     return sid
 }
 
-const SESSION_ID = getOrCreateSessionId()
+var SESSION_ID = getOrCreateSessionId()
 
 function getToken() {
-    return localStorage.getItem("auth_token")
+    return localStorage.getItem("session_id")
 }
 
-// Отправка сообщения в чат
-function sendChatMessage(text, callback) {
-    fetch('/api/chat', {
+// Загрузка истории чата
+function getChatHistory(callback) 
+{
+    fetch('/api/chat/history', 
+    {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + getToken()
-        },
-        body: JSON.stringify({
-            message: text,
-            session_id: SESSION_ID,
-            history: []
-        })
-    })
-    .then(response => response.json())
-    .then(data => callback(data))
-    .catch(error => {
-        console.error('Ошибка:', error)
-        callback(null)
-    })
-}
-
-// Очистка чата — удаляет историю из БД и генерирует новый session_id
-function clearChat(callback) {
-    fetch('/api/chat/clear', {
-        method: 'DELETE',
-        headers: {
-            'Authorization': 'Bearer ' + getToken()
-        }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({'token' : SESSION_ID})
     })
     .then(response => response.json())
     .then(data => {
-        // Генерируем новый session_id
-        localStorage.removeItem("session_id")
-        location.reload()
+        callback(data);
     })
     .catch(error => console.error('Ошибка:', error))
+}
+
+// Удаление истории
+function deleteChatHistory(callback)
+{
+    fetch('/api/chat/delete', 
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({'token' : SESSION_ID})
+    })
+    .then(response => response.json())
+    .then(data => {
+        callback(data);
+    })
+    .catch(error => console.error('Ошибка:', error))
+}
+
+// Отправка сообщения в чат
+function sendChatMessage(text, callback)
+{
+    var headers = { 'Content-Type': 'application/json' };
+
+    fetch('/api/chat/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'text': text,
+                'session': SESSION_ID
+            })
+        })
+    .then(response => response.json())
+    .then(data => {
+        callback(data);
+    })
+    .catch(error => {
+        callback(null);
+    });
 }
 
 // Авторизация
@@ -109,12 +121,10 @@ async function getEvents(callback)
     .catch(error => console.error('Ошибка:', error));
 }
 
-login("test", "test", (responce) => {console.log(responce)});
-
 // Регистрация
 async function register(username, password, callback) 
 {
-    fetch('/register', {
+    fetch('/api/auth/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

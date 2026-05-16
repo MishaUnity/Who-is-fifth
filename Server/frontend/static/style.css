@@ -139,6 +139,18 @@ body
     cursor: not-allowed;
 }
 
+.ImageButton
+{
+    width: min-content;
+    height: min-content;
+    animation-duration: 150ms;
+}
+.ImageButton:hover 
+{
+    transform: rotate(15deg); 
+    animation-duration: 150ms;
+}
+
 .MessageUser
 {
     background-color: rgb(136, 208, 196);
