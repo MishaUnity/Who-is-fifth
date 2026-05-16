@@ -196,8 +196,21 @@ app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 def index():
     return FileResponse("../frontend/main.html")
 
+tempHistory = dict()
+
+def pushToHistory(session, message, role):
+    if session not in tempHistory.keys():
+        tempHistory[session] = []
+    tempHistory[session].append({'role': role, 'message': message});
+
+def getHistory(session):
+    if session not in tempHistory.keys():
+        return []
+    return tempHistory[session]
+
 class SimpleChatRequest(BaseModel):
     text: str
+    session: str
 
 @app.post("/api/chat/send")
 async def chat_send(payload: SimpleChatRequest):
@@ -214,9 +227,16 @@ async def chat_send(payload: SimpleChatRequest):
         logger.warning("Afisha error: %s", e)
         afisha_context = ""
 
-    messages = gigachat.build_messages(text, afisha_context)
+    history = getHistory(payload.session.strip())
+
+    print(history)
+
+    messages = gigachat.build_messages(text, afisha_context, history)
     result = await asyncio.get_event_loop().run_in_executor(
         None, lambda: gigachat.chat(messages)
     )
+
+    pushToHistory(payload.session.strip(), "user", text)
+    pushToHistory(payload.session.strip(), "ai", result["content"])
 
     return {"text": result["content"]}

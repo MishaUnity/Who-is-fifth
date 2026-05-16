@@ -6,7 +6,8 @@ function sendChatMessage(text, callback)
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                text: text
+                text: text,
+                session: SESSION_ID
             })
         })
     .then(response => response.json())

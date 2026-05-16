@@ -19,7 +19,6 @@ SYSTEM_PROMPT = (
     "Всегда указывай название, дату, время и место мероприятия."
 )
 
-
 class GigaChatClient:
     def __init__(self):
         self.auth_key    = os.getenv("GIGACHAT_AUTH_ID")
