@@ -200,7 +200,7 @@ tempHistory = dict()
 def pushToHistory(session, role, message):
     if session not in tempHistory.keys():
         tempHistory[session] = []
-    tempHistory[session].append({'role': role, 'message': message});
+    tempHistory[session].append({'role': role, 'content': message})
 
 def getHistory(session):
     if session not in tempHistory.keys():
@@ -223,7 +223,6 @@ async def get_history(payload: TokenPayload):
 @app.post("/api/chat/delete")
 async def delete_history(payload: TokenPayload):
     del tempHistory[payload.token]
-
     return None
 
 @app.post("/api/chat/send")
@@ -243,17 +242,14 @@ async def chat_send(payload: SimpleChatRequest):
     history = getHistory(payload.session.strip())
 
     messages = gigachat.build_messages(text, afisha_payload, history)
-    test = "Answer"
-    # result = await asyncio.get_event_loop().run_in_executor(
-    #     None, lambda: gigachat.chat(messages)
-    # )
+    result = await asyncio.get_event_loop().run_in_executor(
+        None, lambda: gigachat.chat(messages)
+    )
+    
+    pushToHistory(payload.session, "user", text)
+    pushToHistory(payload.session, "you", result["content"])
 
-    pushToHistory(payload.session.strip(), "user", text)
-    #pushToHistory("you", payload.session.strip(), result["content"])
-    pushToHistory(payload.session.strip(), "you", test)
-
-    return {"text": test}
-    #return {"text": result["content"]}
+    return {"text": result["content"]}
 
 
 # ── Admin ──────────────────────────────────────────────────────────────

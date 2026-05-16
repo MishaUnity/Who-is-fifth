@@ -108,5 +108,4 @@ def get_today_events():
         limit=12,
         offset=0
     )
-    pprint(payload)
     return payload["events"]

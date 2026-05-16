@@ -108,11 +108,10 @@ class GigaChatClient:
         if events_context:
             system_content += f"\n\nАктуальные мероприятия:\n{events_context}"
         
-        print(f"{history=}")
-
         messages = [{"role": "system", "content": system_content}]
+
         if history:
-            messages.extend(history[-20:])
+            messages = messages + history
         messages.append({"role": "user", "content": user_message})
         return messages
 
