@@ -49,19 +49,11 @@ class AdminUserResponse(BaseModel):
 
 @router.get("/stats", response_model=StatsResponse)
 async def admin_stats(request: Request, current_user: dict = Depends(require_admin)):
-    """
-    Статистика для окна администратора.
-    Требует: is_admin = true.
-    """
     return await get_stats()
 
 
 @router.get("/users", response_model=list[AdminUserResponse])
 async def admin_users(current_user: dict = Depends(require_admin)):
-    """
-    Все пользователи с агрегатами активности.
-    Требует: is_admin = true.
-    """
     return await get_all_users()
 
 
@@ -70,7 +62,6 @@ async def toggle_admin(
     user_id: str,
     current_user: dict = Depends(require_admin),
 ):
-    """Выдать / забрать права администратора."""
     if user_id == current_user["id"]:
         raise HTTPException(400, "Нельзя изменить права самому себе")
 
@@ -78,11 +69,10 @@ async def toggle_admin(
     if not user:
         raise HTTPException(404, "Пользователь не найден")
 
-    # TODO: обновить is_admin в БД
     return {**user, "is_admin": not user["is_admin"]}
 
 class TokenStatsResponse(BaseModel):
-    period: str          # "2026-05-15"
+    period: str          
     requests: int
     tokens_used: int
     sessions_opened: int
@@ -95,13 +85,10 @@ class DetailedStatsResponse(BaseModel):
     total_tokens: int
     avg_tokens_per_request: float
     avg_messages_per_session: float
-    # Сегодня
     requests_today: int
     tokens_today: int
     sessions_today: int
-    # По дням (для графика)
     daily: list[TokenStatsResponse]
-    # Топ
     top_users: list[TopUser]
 
 
