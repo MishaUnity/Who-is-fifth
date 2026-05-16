@@ -7,6 +7,7 @@ var awaitingResponce = false;
 
 function setChatLoading(state)
 {
+    awaitingResponce = state;
     chatLoading.style.display = state ? "flex" : "none";
 }
 
@@ -62,11 +63,11 @@ function sendMessage()
 
     pushMessage("user", inputText);
 
-    awaitingResponce = true;
+    setChatLoading(true);
     checkSendAvailability();
 
     sendChatMessage(inputText, (responce, err) => {
-        awaitingResponce = false;
+        setChatLoading(false);
         checkSendAvailability();
 
         console.log(err, responce);
