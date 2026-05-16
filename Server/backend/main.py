@@ -199,10 +199,10 @@ def index():
 
 tempHistory = dict()
 
-def pushToHistory(session, message, role):
+def pushToHistory(session, role, message):
     if session not in tempHistory.keys():
         tempHistory[session] = []
-    tempHistory[session].append({'role': role, 'message': message});
+    tempHistory[session].append({'role': role, 'content': message})
 
 def getHistory(session):
     if session not in tempHistory.keys():
@@ -234,7 +234,8 @@ async def chat_send(payload: SimpleChatRequest):
         None, lambda: gigachat.chat(messages)
     )
 
-    pushToHistory("user", payload.session.strip(), text)
-    pushToHistory("you", payload.session.strip(), result["content"])
+    print(text + " " + result["content"])
+    pushToHistory(payload.session, "user", text)
+    pushToHistory(payload.session, "system", result["content"])
 
     return {"text": result["content"]}
