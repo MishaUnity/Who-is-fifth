@@ -139,6 +139,23 @@ body
     cursor: not-allowed;
 }
 
+#loginButton
+{
+    background: rgb(136, 208, 196);
+    border: none;
+    border-radius: 10px;
+    padding: 6px 18px;
+    font-family: 'Rubik', sans-serif;
+    color: #0a2b2b;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#loginButton:hover 
+{
+    background: rgb(116, 188, 176);
+}
+
 .ImageButton
 {
     width: min-content;
