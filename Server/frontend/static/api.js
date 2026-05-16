@@ -18,6 +18,17 @@ function sendChatMessage(text, callback)
     });
 }
 
+function getOrCreateSessionId() {
+    let sid = localStorage.getItem("session_id")
+    if (!sid) {
+        sid = "session_" + Math.random().toString(36).slice(2)
+        localStorage.setItem("session_id", sid)
+    }
+    return sid
+}
+
+const SESSION_ID = getOrCreateSessionId()
+
 // Регистрация
 async function register(username, password, callback) 
 {
