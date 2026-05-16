@@ -86,7 +86,7 @@ def format_events_for_llm(payload: dict) -> str:
 router = APIRouter()
 
 
-@router.get("/api/events/get_afisha")
+
 def get_next_month():
     begin = datetime.now(timezone.utc)
     end = begin + timedelta(days=30)

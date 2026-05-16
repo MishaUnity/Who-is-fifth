@@ -3,12 +3,13 @@ import logging
 import asyncio
 
 from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
 load_dotenv()
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, Depends, HTTPException
+from fastapi import FastAPI, Request, Depends, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 from gigachat import GigaChatClient
@@ -33,6 +34,8 @@ async def lifespan(app):
 
 
 app = FastAPI(title="Афиша-СИРИУС ИИ-Ассистент", lifespan=lifespan)
+
+router = APIRouter()
 
 app.add_middleware(
     CORSMiddleware,
@@ -180,3 +183,17 @@ async def get_stats(limit: int = 100, current_user: dict = Depends(require_user)
 async def generic_exception_handler(request: Request, exc: Exception):
     logger.error("Unhandled error on %s: %s", request.url, exc)
     return JSONResponse(status_code=500, content={"error": str(exc)})
+
+@router.get("/api/events/get_afisha")
+async def render_afisha():
+    return afisha_client.get_next_month()
+
+@router.get("/api/events/get")
+async def get_today():
+    return afisha_client.get_today_events()
+
+app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+
+@app.get("/")
+def index():
+    return FileResponse("../frontend/main.html")
