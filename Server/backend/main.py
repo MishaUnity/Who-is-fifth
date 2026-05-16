@@ -1,7 +1,8 @@
-import os
+import afisha
 import logging
 import asyncio
 
+from datetime import datetime
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 load_dotenv()
@@ -171,6 +172,53 @@ async def chat_endpoint(payload: ChatRequest, current_user: dict = Depends(requi
     }
 
 
+<<<<<<< HEAD
+=======
+# ── Admin ──────────────────────────────────────────────────────────────
+
+@app.get("/api/stats")
+async def get_stats(limit: int = 100, current_user: dict = Depends(require_user)):
+    entries = await db.get_stats(limit=min(limit, 500))
+    total_tokens = sum(e.get("tokens_used", 0) for e in entries)
+    return {"total_tokens": total_tokens, "entries": entries, "count": len(entries)}
+
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error("Unhandled error on %s: %s", request.url, exc)
+    return JSONResponse(status_code=500, content={"error": str(exc)})
+
+@app.get("/api/events/get_afisha")
+async def render_afisha():
+    return afisha_client.get_next_month()
+
+@app.get("/api/events/get")
+async def get_today():
+    return afisha_client.get_today_events()
+
+app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
+
+@app.get("/")
+def index():
+    return FileResponse("../frontend/main.html")
+
+tempHistory = dict()
+
+def pushToHistory(session, message, role):
+    if session not in tempHistory.keys():
+        tempHistory[session] = []
+    tempHistory[session].append({'role': role, 'message': message});
+
+def getHistory(session):
+    if session not in tempHistory.keys():
+        return []
+    return tempHistory[session]
+
+class SimpleChatRequest(BaseModel):
+    text: str
+    session: str
+
+>>>>>>> 695edabebc936b61e8ebc2cb7a7f635a491019fa
 @app.post("/api/chat/send")
 async def chat_send(payload: SimpleChatRequest):
     text = payload.text.strip()
@@ -178,18 +226,22 @@ async def chat_send(payload: SimpleChatRequest):
         raise HTTPException(status_code=400, detail="text обязателен")
 
     try:
-        afisha_payload = await asyncio.get_event_loop().run_in_executor(
-            None, lambda: afisha_client.get_events(search=text, limit=20)
-        )
-        afisha_context = afisha_client.format_events_for_llm(afisha_payload)
+        afisha_payload = afisha.get_next_month()
+        afisha_payload.append({'current_date': datetime.now().isoformat()})
+        print(afisha_payload)
     except Exception as e:
         logger.warning("Afisha error: %s", e)
-        afisha_context = ""
+        afisha_payload = ""
 
-    messages = gigachat.build_messages(text, afisha_context)
+    history = getHistory(payload.session.strip())
+
+    messages = gigachat.build_messages(text, afisha_payload, history)
     result = await asyncio.get_event_loop().run_in_executor(
         None, lambda: gigachat.chat(messages)
     )
+
+    pushToHistory("user", payload.session.strip(), text)
+    pushToHistory("you", payload.session.strip(), result["content"])
 
     return {"text": result["content"]}
 

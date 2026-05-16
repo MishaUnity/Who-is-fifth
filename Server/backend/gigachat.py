@@ -19,7 +19,6 @@ SYSTEM_PROMPT = (
     "Всегда указывай название, дату, время и место мероприятия."
 )
 
-
 class GigaChatClient:
     def __init__(self):
         self.auth_key    = os.getenv("GIGACHAT_AUTH_ID")
@@ -108,6 +107,8 @@ class GigaChatClient:
         system_content = SYSTEM_PROMPT
         if events_context:
             system_content += f"\n\nАктуальные мероприятия:\n{events_context}"
+        
+        print(f"{history=}")
 
         messages = [{"role": "system", "content": system_content}]
         if history:

@@ -1,3 +1,27 @@
+<<<<<<< HEAD
+=======
+function sendChatMessage(text, callback)
+{
+    var headers = { 'Content-Type': 'application/json' };
+
+    fetch('/api/chat/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: text,
+                session: SESSION_ID
+            })
+        })
+    .then(response => response.json())
+    .then(data => {
+        callback(data);
+    })
+    .catch(error => {
+        callback(null);
+    });
+}
+
+>>>>>>> 695edabebc936b61e8ebc2cb7a7f635a491019fa
 function getOrCreateSessionId() {
     let sid = localStorage.getItem("session_id")
     if (!sid) {
