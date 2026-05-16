@@ -1,7 +1,8 @@
-import os
+import afisha
 import logging
 import asyncio
 
+from datetime import datetime
 from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 load_dotenv()
@@ -206,15 +207,14 @@ async def chat_send(payload: SimpleChatRequest):
         raise HTTPException(status_code=400, detail="text обязателен")
 
     try:
-        afisha_payload = await asyncio.get_event_loop().run_in_executor(
-            None, lambda: afisha_client.get_events(search=text, limit=20)
-        )
-        afisha_context = afisha_client.format_events_for_llm(afisha_payload)
+        afisha_payload = afisha.get_next_month()
+        afisha_payload.append({'current_date': datetime.now().isoformat()})
+        print(afisha_payload)
     except Exception as e:
         logger.warning("Afisha error: %s", e)
-        afisha_context = ""
+        afisha_payload = ""
 
-    messages = gigachat.build_messages(text, afisha_context)
+    messages = gigachat.build_messages(text, afisha_payload)
     result = await asyncio.get_event_loop().run_in_executor(
         None, lambda: gigachat.chat(messages)
     )
