@@ -255,11 +255,11 @@ async def chat_send(payload: SimpleChatRequest):
 
 # ── Admin ──────────────────────────────────────────────────────────────
 
-@app.get("/api/stats")
-async def get_stats(limit: int = 100, current_user: dict = Depends(require_user)):
-    entries = await db.get_stats(limit=min(limit, 500))
-    total_tokens = sum(e.get("tokens_used", 0) for e in entries)
-    return {"total_tokens": total_tokens, "entries": entries, "count": len(entries)}
+@app.get("/api/admin/stats")
+async def get_stats():
+    used_tokens = gigachat.usedTokens
+    used_messanges = gigachat.usedMessanges
+    return {"used_tokens": used_tokens, "used_messanges": used_messanges}
 
 
 @app.get("/admin/detailed-stats")  # ← новый эндпоинт для страницы статистики

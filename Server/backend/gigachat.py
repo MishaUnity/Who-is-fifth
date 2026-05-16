@@ -29,6 +29,9 @@ class GigaChatClient:
         self._token_expires_at: float  = 0.0
         self._lock = threading.Lock()
 
+        self.usedTokens = 0
+        self.usedMessanges = 0
+
         if self._configured:
             self._start_token_rotation()
 
@@ -132,6 +135,8 @@ class GigaChatClient:
             )
             response.raise_for_status()
             data = response.json()
+            self.usedMessanges += 1
+            self.usedTokens += data.get("usage", {}).get("total_tokens", 0)
             return {
                 "content":     data["choices"][0]["message"]["content"],
                 "tokens_used": data.get("usage", {}).get("total_tokens", 0),
