@@ -107,11 +107,13 @@ class GigaChatClient:
         system_content = SYSTEM_PROMPT
         if events_context:
             system_content += f"\n\nАктуальные мероприятия:\n{events_context}"
-        
-        messages = [{"role": "system", "content": system_content}]
 
+        formatted = ""
         if history:
-            messages = messages + history
+            for element in history:
+                formatted += element["role"] + ":" + element["content"] + "\n";        
+        messages = [{"role": "system", "content": system_content + formatted}]
+
         messages.append({"role": "user", "content": user_message})
         return messages
 

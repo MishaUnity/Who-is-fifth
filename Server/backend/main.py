@@ -239,17 +239,18 @@ async def chat_send(payload: SimpleChatRequest):
         logger.warning("Afisha error: %s", e)
         afisha_payload = ""
 
-    history = getHistory(payload.session.strip())
+    history = getHistory(payload.session)
 
     messages = gigachat.build_messages(text, afisha_payload, history)
     result = await asyncio.get_event_loop().run_in_executor(
         None, lambda: gigachat.chat(messages)
     )
     
+    answer = result["content"]
     pushToHistory(payload.session, "user", text)
-    pushToHistory(payload.session, "you", result["content"])
+    pushToHistory(payload.session, "bot", answer)
 
-    return {"text": result["content"]}
+    return {"text": answer}
 
 
 # ── Admin ──────────────────────────────────────────────────────────────
