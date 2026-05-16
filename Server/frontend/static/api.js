@@ -6,7 +6,8 @@ function sendChatMessage(text, callback)
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                text: text
+                text: text,
+                session: SESSION_ID
             })
         })
     .then(response => response.json())
@@ -17,6 +18,17 @@ function sendChatMessage(text, callback)
         callback(null);
     });
 }
+
+function getOrCreateSessionId() {
+    let sid = localStorage.getItem("session_id")
+    if (!sid) {
+        sid = "session_" + Math.random().toString(36).slice(2)
+        localStorage.setItem("session_id", sid)
+    }
+    return sid
+}
+
+const SESSION_ID = getOrCreateSessionId()
 
 // Регистрация
 async function register(username, password, callback) 
