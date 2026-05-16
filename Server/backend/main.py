@@ -195,3 +195,28 @@ app.mount("/static", StaticFiles(directory="../frontend/static"), name="static")
 @app.get("/")
 def index():
     return FileResponse("../frontend/main.html")
+
+class SimpleChatRequest(BaseModel):
+    text: str
+
+@app.post("/api/chat/send")
+async def chat_send(payload: SimpleChatRequest):
+    text = payload.text.strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="text обязателен")
+
+    try:
+        afisha_payload = await asyncio.get_event_loop().run_in_executor(
+            None, lambda: afisha_client.get_events(search=text, limit=20)
+        )
+        afisha_context = afisha_client.format_events_for_llm(afisha_payload)
+    except Exception as e:
+        logger.warning("Afisha error: %s", e)
+        afisha_context = ""
+
+    messages = gigachat.build_messages(text, afisha_context)
+    result = await asyncio.get_event_loop().run_in_executor(
+        None, lambda: gigachat.chat(messages)
+    )
+
+    return {"text": result["content"]}
