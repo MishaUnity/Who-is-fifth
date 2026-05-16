@@ -172,8 +172,6 @@ async def chat_endpoint(payload: ChatRequest, current_user: dict = Depends(requi
     }
 
 
-<<<<<<< HEAD
-=======
 # ── Admin ──────────────────────────────────────────────────────────────
 
 @app.get("/api/stats")
@@ -218,7 +216,6 @@ class SimpleChatRequest(BaseModel):
     text: str
     session: str
 
->>>>>>> 695edabebc936b61e8ebc2cb7a7f635a491019fa
 @app.post("/api/chat/send")
 async def chat_send(payload: SimpleChatRequest):
     text = payload.text.strip()
